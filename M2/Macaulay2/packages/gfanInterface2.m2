@@ -980,7 +980,7 @@ argFuncs = {
 	"disableSymmetryTest" => {gfan},
 	--missing help
 	"ideal" => {gfanInitialForms},
-	"groebnerFan" =>{gfanOverIntegers}
+	"groebnerFan" =>{gfanOverIntegers},
 	"noincidence" => {gfanTropicalTraverse},
 	"pair" => {gfanGroebnerCone, gfanInitialForms},
 	"polynomialset" => {gfanToLatex},
@@ -2238,7 +2238,7 @@ gfanFunctions = hashTable {
 	gfanMarkPolynomialSet => "gfan _markpolynomialset",
 	gfanMinkowskiSum => "gfan _minkowskisum", -- v0.4
 	gfanMinors => "gfan _minors", -- v0.4
-	gfanOverIntegers => "gfan_overintegers"
+	gfanOverIntegers => "gfan_overintegers",
 	gfanPolynomialSetUnion => "gfan _polynomialsetunion",
 	gfanRender => "gfan _render",
 	gfanRenderStaircase => "gfan _renderstaircase",
