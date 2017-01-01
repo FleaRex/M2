@@ -46,6 +46,7 @@ export {
 	"gfanMarkPolynomialSet", -- done!
 	"gfanMinkowskiSum", -- v0.4 -- implemented, documented, but i don't understand/agree with the output
 	"gfanMinors", -- v0.4 done!
+	"gfanOverIntegers", -- IN PROGRESS
 	"gfanPolynomialSetUnion", -- done!
 	"gfanRender",
 	"gfanRenderStaircase",
@@ -667,7 +668,7 @@ gfanMPLToRingToString List := (L) -> (
 gfanConvertToNewRing = method()
 gfanConvertToNewRing (PolynomialRing) := R1 -> (
   --This method does all of the actual conversions.
-  --Every other gfanConvertToNewRing uses rings 
+  --Every other gfanConvertToNewRing uses rings
   --produced by this method.
   R1Gens := gens R1;
   numDigits := length (toString (#R1Gens));
@@ -782,7 +783,7 @@ inverseRingMapRecursive = (L, ringMap) -> (
 --flattens a list until it does not contain lists any longer
 flattenRecursive = (L) -> (
 	if containsList(L) then return flattenRecursive flatten L;
-	L	
+	L
 )
 
 --checks if a list contains a list
@@ -964,10 +965,10 @@ runGfanCommandCaptureError = (cmd, opts, data) -> (
 argFuncs = {
 	"d" => {gfanRenderStaircase, gfanTropicalStartingCone, gfanTropicalLinearSpace},
 	"e" => {gfan},
-	"g" => {gfan,gfanBuchberger,gfanTropicalStartingCone},
+	"g" => {gfan,gfanBuchberger,gfanTropicalStartingCone,gfanOverIntegers},
 	"h" => {gfanToLatex,gfanTropicalBasis},
 	"i" => {gfanHomogenize},
-	"m" => {gfanLeadingTerms,gfanRenderStaircase},
+	"m" => {gfanLeadingTerms,gfanRenderStaircase,gfanOverIntegers},
 	"n" => {gfanTropicalLinearSpace},
 	"L" => {gfanRender},
 	"r" => {gfanBuchberger},
@@ -979,6 +980,7 @@ argFuncs = {
 	"disableSymmetryTest" => {gfan},
 	--missing help
 	"ideal" => {gfanInitialForms},
+	"groebnerFan" =>{gfanOverIntegers}
 	"noincidence" => {gfanTropicalTraverse},
 	"pair" => {gfanGroebnerCone, gfanInitialForms},
 	"polynomialset" => {gfanToLatex},
@@ -1665,6 +1667,23 @@ gfanMinors (ZZ,ZZ,ZZ) := opts -> (r,d,n) -> (
 	)
 )
 
+--------------------------------------------------------
+-- gfan_overintegers
+--------------------------------------------------------
+
+gfanOverIntegers = method( Options => {
+	"g" => false,
+	"m" => false,
+	"groebnerFan" => true
+	}
+)
+
+gfanOverIntegers Ideal := opts -> (I) -> (
+	if opts#"g" then error "Polynomials must be marked for the -g option";
+	input := gfanRingToString(ring I)
+		| gfanIdealToString(I);
+	gfanParseLMPL first runGfanCommand("gfan _overintegers", opts, input)
+)
 
 --------------------------------------------------------
 -- gfan_polynomialsetunion
@@ -2219,6 +2238,7 @@ gfanFunctions = hashTable {
 	gfanMarkPolynomialSet => "gfan _markpolynomialset",
 	gfanMinkowskiSum => "gfan _minkowskisum", -- v0.4
 	gfanMinors => "gfan _minors", -- v0.4
+	gfanOverIntegers => "gfan_overintegers"
 	gfanPolynomialSetUnion => "gfan _polynomialsetunion",
 	gfanRender => "gfan _render",
 	gfanRenderStaircase => "gfan _renderstaircase",
@@ -2341,7 +2361,7 @@ doc ///
 
 		Text
 			The package now uses tropical-MIN convention by default, however tropical-MAX can be specified on loading the package as follows:
-		
+
 		Example
 			loadPackage("gfanInterface2", Configuration => { "tropicalMax" => true }, Reload=> true)
 ///
@@ -2468,7 +2488,7 @@ doc ///
 	SeeAlso
 		MarkedPolynomialList
 ///
-    
+
 -- --{*
 -- doc ///
 -- 	Key
