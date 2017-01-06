@@ -265,6 +265,10 @@ gfanParseList String := (S) -> (
 	S = replace("\n", "", S);
 	stack := {};
 	r := regex(///[\{,\}]///, S);
+	<< "Printing S:";
+	<< S;
+	<< "Printing r:";
+	<< r;
 	popstate := false;
 	while #r === 1 do (
 		startpos := first first r;
@@ -352,8 +356,11 @@ gfanParseMPL String := (s) -> (
 
 gfanParseLMPL = method()
 gfanParseLMPL String := (s) -> (
+	<< "s:" | s;
 	G := separate("]",s);
+	<< "G:" | G;	
 	G = drop(G,1);
+	<< "G:" | G;
 	apply(gfanParseList(concatenate G), L ->
 		new MarkedPolynomialList from transpose apply(L, p -> gfanParseMarkedPoly(p)))
 )
@@ -1019,6 +1026,7 @@ argStrs = hashTable {
 	"dressian" => "--dressian",
 	"help" => "--help",
 	"ideal" => "--ideal",
+	"groebnerFan" => "--groebnerFan",
 	"kapranov" => "--kapranov",
 	"mark" => "--mark",
 	"names" => "--names",
@@ -1682,7 +1690,7 @@ gfanOverIntegers Ideal := opts -> (I) -> (
 	if opts#"g" then error "Polynomials must be marked for the -g option";
 	input := gfanRingToString(ring I)
 		| gfanIdealToString(I);
-	gfanParseLMPL first runGfanCommand("gfan _overintegers", opts, input)
+	gfanParsePolyhedralFan runGfanCommand("gfan _overintegers", opts, input)
 )
 
 --------------------------------------------------------
