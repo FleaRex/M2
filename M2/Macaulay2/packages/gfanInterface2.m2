@@ -431,7 +431,6 @@ gfanParsePolyhedralFan String := o -> s -> (
 			myBlocks := prepend(header, values rawBlocks);
 			s = concatenate between("\n\n", apply(myBlocks, lines -> between("\n", lines)));
 	);
-
 	P := new gfanParseHeader(header) from myhash;
    	if gfanCachePolyhedralOutput then (
 
@@ -1690,7 +1689,18 @@ gfanOverIntegers Ideal := opts -> (I) -> (
 	if opts#"g" then error "Polynomials must be marked for the -g option";
 	input := gfanRingToString(ring I)
 		| gfanIdealToString(I);
-	gfanParsePolyhedralFan runGfanCommand("gfan _overintegers", opts, input)
+	resultString := runGfanCommand("gfan _overintegers", opts, input);
+
+	B := select(sublists(lines resultString#0, l -> #l =!= 0, toList, l -> null), l -> l =!= null);
+	header := first B; --first list of lines
+	if #B < 2 and #header < 2 then error(concatenate header);
+	-- blocks are lists of the form {typeString, list of lines, parsed value}
+	blocks := apply(drop(B,1), L -> gfanParseBlock L);
+	rawBlocks := new MutableHashTable from apply(blocks, P -> first P => P#1);
+	parsedBlocks := apply(select(blocks, Q -> last Q =!= null), P -> GfanNameToPolyhedralName#(first P) => last P);
+	myhash := new MutableHashTable from parsedBlocks;
+	F := fan(transpose matrix myhash#"Rays", transpose matrix myhash#"LinealitySpace", myhash#"Cones");
+	F
 )
 
 --------------------------------------------------------
