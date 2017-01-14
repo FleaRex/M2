@@ -986,6 +986,8 @@ argFuncs = {
 	"disableSymmetryTest" => {gfan},
 	--missing help
 	"ideal" => {gfanInitialForms},
+	"initialIdeal" => {gfanOverIntegers},
+	"groebnerBasis" => {gfanOverIntegers},	
 	"groebnerFan" =>{gfanOverIntegers},
 	"noincidence" => {gfanTropicalTraverse},
 	"pair" => {gfanGroebnerCone, gfanInitialForms},
@@ -1025,6 +1027,8 @@ argStrs = hashTable {
 	"dressian" => "--dressian",
 	"help" => "--help",
 	"ideal" => "--ideal",
+	"initialIdeal" => "--initialIdeal",
+	"groebnerBasis" => "--groebnerBasis",	
 	"groebnerFan" => "--groebnerFan",
 	"kapranov" => "--kapranov",
 	"mark" => "--mark",
@@ -1679,14 +1683,14 @@ gfanMinors (ZZ,ZZ,ZZ) := opts -> (r,d,n) -> (
 --------------------------------------------------------
 
 gfanOverIntegers = method( Options => {
-	"g" => false,
-	"m" => false,
-	"groebnerFan" => true
+	"groebnerFan" => false,
+	"initialIdeal" => false,
+	"groebnerBasis" => false
 	}
 )
 
 gfanOverIntegers Ideal := opts -> (I) -> (
-	if opts#"g" then error "Polynomials must be marked for the -g option";
+	if not opts#"groebnerFan" then error "Must specify groebnerFan or give weight vector.";
 	input := gfanRingToString(ring I)
 		| gfanIdealToString(I);
 	resultString := runGfanCommand("gfan _overintegers", opts, input);
@@ -1699,9 +1703,16 @@ gfanOverIntegers Ideal := opts -> (I) -> (
 	rawBlocks := new MutableHashTable from apply(blocks, P -> first P => P#1);
 	parsedBlocks := apply(select(blocks, Q -> last Q =!= null), P -> GfanNameToPolyhedralName#(first P) => last P);
 	myhash := new MutableHashTable from parsedBlocks;
-	F := fan(transpose matrix myhash#"Rays", transpose matrix myhash#"LinealitySpace", myhash#"Cones");
+	if myhash#?"Rays" and #myhash#"Rays" =!= 0 then(
+		F := fan(transpose matrix myhash#"Rays", transpose matrix myhash#"LinealitySpace", myhash#"Cones"))
+	else(
+		F = {};
+		<< "Fan produced is entirely reduced by lineality space. Only one possible basis."; 
+	);
 	F
 )
+
+
 
 --------------------------------------------------------
 -- gfan_polynomialsetunion
