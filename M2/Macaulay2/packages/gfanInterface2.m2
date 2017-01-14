@@ -1693,9 +1693,9 @@ gfanOverIntegers Ideal := opts -> (I) -> (
 	if not opts#"groebnerFan" then error "Must specify groebnerFan or give weight vector.";
 	input := gfanRingToString(ring I)
 		| gfanIdealToString(I);
-	resultString := runGfanCommand("gfan _overintegers", opts, input);
+	resultString := first runGfanCommand("gfan _overintegers", opts, input);
 
-	B := select(sublists(lines resultString#0, l -> #l =!= 0, toList, l -> null), l -> l =!= null);
+	B := select(sublists(lines resultString, l -> #l =!= 0, toList, l -> null), l -> l =!= null);
 	header := first B; --first list of lines
 	if #B < 2 and #header < 2 then error(concatenate header);
 	-- blocks are lists of the form {typeString, list of lines, parsed value}
@@ -1712,6 +1712,25 @@ gfanOverIntegers Ideal := opts -> (I) -> (
 	F
 )
 
+gfanOverIntegers (Ideal, List) := opts -> (I, w) -> (
+	if opts#"groebnerFan" then (
+		<< "Ignoring groebnerFan.";
+	);
+	if opts#"initialIdeal" and opts#"groebnerBasis" then error "Two procedures specified";
+	if not opts#"initialIdeal" and not opts#"groebnerBasis" then error "Must specify a procedure.";
+
+	input := gfanRingToString(ring I)
+		| gfanIdealToString(I)
+		| gfanIntegerListToString(w);
+	resultString := first runGfanCommand("gfan _overintegers", opts, input);
+	if opts#"initialIdeal" then(
+		return gfanParseIdeal resultString;
+	)
+	else (
+		return gfanParseMPL resultString;
+	)
+
+)
 
 
 --------------------------------------------------------
