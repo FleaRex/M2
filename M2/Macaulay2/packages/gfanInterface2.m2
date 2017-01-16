@@ -1691,7 +1691,7 @@ gfanOverIntegers = method( Options => {
 
 gfanOverIntegers Ideal := opts -> (I) -> (
 	if not opts#"groebnerFan" then error "Must specify groebnerFan or give weight vector.";
-	input := gfanRingToString(ring I)
+	input := gfanRingToString(convertRingToRational(ring I))
 		| gfanIdealToString(I);
 	resultString := first runGfanCommand("gfan _overintegers", opts, input);
 
@@ -1718,11 +1718,11 @@ gfanOverIntegers (Ideal, List) := opts -> (I, w) -> (
 	);
 	if opts#"initialIdeal" and opts#"groebnerBasis" then error "Two procedures specified";
 	if not opts#"initialIdeal" and not opts#"groebnerBasis" then error "Must specify a procedure.";
-
-	input := gfanRingToString(ring I)
+	input := gfanRingToString(convertRingToRational(ring I))
 		| gfanIdealToString(I)
 		| gfanIntegerListToString(w);
 	resultString := first runGfanCommand("gfan _overintegers", opts, input);
+	use ring I;
 	if opts#"initialIdeal" then(
 		return gfanParseIdeal resultString;
 	)
@@ -1732,6 +1732,13 @@ gfanOverIntegers (Ideal, List) := opts -> (I, w) -> (
 
 )
 
+-- This function is used as gfan_overintegers requires the polynomial ring to be over
+-- a field, but it does not make sense for the rest of the program to have this.
+convertRingToRational = method()
+convertRingToRational Ring := ZRing -> (
+	if coefficientRing(ZRing) =!= ZZ then error "Must be a polynomial ring over integers";
+	return QQ[gens ZRing];
+)
 
 --------------------------------------------------------
 -- gfan_polynomialsetunion
