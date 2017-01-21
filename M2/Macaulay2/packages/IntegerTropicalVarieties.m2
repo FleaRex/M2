@@ -14,7 +14,8 @@ newPackage("IntegerTropicalVarieties",
 )
 
 export{
-	"integerTropicalVariety"
+	"integerTropicalVariety",
+	"containsOneMonomial"
 }
 
 --------------------------------------------------------
@@ -27,12 +28,10 @@ integerTropicalVariety Ideal := I -> (
 	--TODO sort this.	
 	if F === {} then return {};
 	rayList := entries transpose rays F;
-	totalCones := {};
-	for coneDimension from 0 to ambDim F do (
-		totalCones = totalCones | cones(coneDimension, F);
-	);
+	totalCones := cones(ambDim F, F);
 	includedCones := {};
-	for coneIndex from 0 to length totalCones - 1 do (
+	-- TODO change this to in list version
+	for coneIndex from 0 to length totalCones - 1 do (		
 		w := constructVectorInCone(rayList, totalCones#coneIndex);
 		if not containsOneMonomial(
 			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
@@ -47,12 +46,19 @@ integerTropicalVariety Ideal := I -> (
 -- Helper Functions
 --------------------------------------------------------
 
--- TODO
+-- Takes any ideal and determines if it contains one.
 containsOneMonomial = method()
 containsOneMonomial Ideal := I -> (
-	return true;
+	variables  :=  gens ring I;
+	J := I;
+	for var in variables do (
+		J = saturate(J, var);
+		if J == 1 then return true;
+	);
+	return false;
 )
 
+-- Takes the rays defining a cone and provides a vector in the interior.
 constructVectorInCone = method()
 constructVectorInCone (List, List) := (rays, cone) -> (
 	vectorLength := length first rays;
@@ -60,10 +66,10 @@ constructVectorInCone (List, List) := (rays, cone) -> (
 	for dimension from 1 to vectorLength do (
 		v = v | {0};
 	);
+	-- TODO Change this to the in list version
 	for rayIndex from 0 to length cone - 1 do (
 		v = v + rays#(cone#rayIndex);	
 	);
-	<< v;
 	return v;
 )
 
