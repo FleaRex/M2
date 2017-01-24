@@ -50,17 +50,20 @@ integerTropicalVariety Ideal := I -> (
 
 -- Takes a fan and determines if it contains a line.
 -- Could reduce the cones considered by only taking maxCones or constructing them earlier.
-containsLine = method()
-containsLine Fan := F -> (
+containsLine = method( Options => {
+	"homogenisedIdeal" => false	
+	}
+)
+containsLine Fan := opts -> F -> (
+	sufficientLineality := 1;
+	if opts#"homogenisedIdeal" then sufficientLineality = 2;
+	if numgens source linealitySpace F >= sufficientLineality then return true;
+	
 	coneList := getAllCones F;
-	<< coneList;
-	minusF := fan(-1*(rays F), linealitySpace F, coneList);
 	for posRays in coneList do (
-		posCone := constructConeFromRays(rays F, linealitySpace F, posRays);		
+		posCone := constructConeFromRays(rays F, posRays);		
 		for negRays in coneList do (
-			negCone := constructConeFromRays(rays minusF, linealitySpace minusF, negRays);
-			<< rays posCone;
-			<< rays negCone;
+			negCone := constructConeFromRays(-1*(rays F), negRays);
 			if rays(intersection(posCone, negCone)) != 0 then return true;
 		);
 	);
@@ -88,6 +91,7 @@ containsOneMonomial Ideal := I -> (
 constructVectorInCone = method()
 constructVectorInCone (List, List) := (rays, cone) -> (
 	vectorLength := length first rays;
+	--v := apply(vectorLength, i -> 0);
 	v := {};
 	for dimension from 1 to vectorLength do (
 		v = v | {0};
@@ -100,18 +104,16 @@ constructVectorInCone (List, List) := (rays, cone) -> (
 )
 
 constructConeFromRays = method()
-constructConeFromRays (Matrix, Matrix, List) := (fanRays, lineality, cone) -> (
-	rayList := entries transpose fanRays;
-	linealityList := (entries transpose lineality)|(entries transpose (-1*lineality));	
+constructConeFromRays (Matrix, List) := (fanRays, cone) -> (
+	if #cone === 0 then (
+		zeroVector := apply(numgens source fanRays, i -> 0);
+		return posHull(transpose matrix {zeroVector});
+	);	
+	rayList := entries transpose fanRays;	
 	points := new MutableList;
 	for rayIndex in cone do (
-		points##points = rays#rayIndex;
+		points##points = rayList#rayIndex;
 	);
-	for vector in linealityList do (
-		points##points = vector;
-	);
-	<<transpose matrix new List from points;
-	<< rays(posHull(transpose matrix new List from points));
 	return posHull(transpose matrix new List from points);
 )
 
