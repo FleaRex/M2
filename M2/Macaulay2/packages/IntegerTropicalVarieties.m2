@@ -26,8 +26,6 @@ export{
 integerTropicalVariety = method()
 integerTropicalVariety Ideal := I -> (
 	F := gfanOverIntegers(I, "groebnerFan"=>true);
-	--TODO sort this.	
-	if F === {} then return {};
 	rayList := entries transpose rays F;
 	totalCones := getAllCones F;
 	includedCones := {};
@@ -40,7 +38,7 @@ integerTropicalVariety Ideal := I -> (
 			includedCones = includedCones | {totalCones#coneIndex};
 		)
 	);
-	return fan(rays F, linealitySpace F, includedCones);
+	return fan(rays F, linealitySpace F, maximalCones(includedCones));
 )
 
 
@@ -55,6 +53,7 @@ containsLine = method( Options => {
 	}
 )
 containsLine Fan := opts -> F -> (
+	if #maxCones(F) === 0 then return false;	
 	sufficientLineality := 1;
 	if opts#"homogenisedIdeal" then sufficientLineality = 2;
 	if numgens source linealitySpace F >= sufficientLineality then return true;
@@ -127,13 +126,29 @@ getAllCones Fan := F -> (
 	allCones := {};
 	for dim from 0 to (ambDim F) do (
 		try (
-			allCones = cones(dim, F);
+			allCones = allCones | cones(dim, F);
 		)
 		else (
 			return allCones;
 		)
 	);
 	return allCones;
+)
+
+
+-- To build a fan you need the maximal cones.
+maximalCones = method()
+maximalCones List := cones -> (
+	maximalCones := cones;
+	for index1 from 0 to  #cones-1 do (
+		for index2 from 0 to #cones-1 do(
+			if index1 === index2 then continue;			
+			if isSubset(cones#index2, cones#index1) then (
+				maximalCones = delete(cones#index2, maximalCones);
+			)
+		);
+	);
+	return maximalCones;
 )
 
 beginDocumentation()
