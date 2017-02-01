@@ -1703,14 +1703,19 @@ gfanOverIntegers Ideal := opts -> (I) -> (
 	rawBlocks := new MutableHashTable from apply(blocks, P -> first P => P#1);
 	parsedBlocks := apply(select(blocks, Q -> last Q =!= null), P -> GfanNameToPolyhedralName#(first P) => last P);
 	myhash := new MutableHashTable from parsedBlocks;
-	if myhash#?"Rays" and #myhash#"Rays" =!= 0 then(
-		F := fan(transpose matrix myhash#"Rays", 
-			 transpose matrix myhash#"LinealitySpace", 
-			 maximalConesFromList myhash#"Cones"))
-	else(
-		F = {};
-		<< "Fan produced is entirely reduced by lineality space. Only one possible basis."; 
+	if myhash#?"Rays" and #myhash#"Rays" === 0 then(
+		dim := numgens target matrix transpose myhash#"LinealitySpace";
+		zeros := apply(dim, i->0);
+		myhash#"Rays" = {zeros};
+	)
+	else if not myhash#?"Rays" then(
+		error "Unable to find rays";
 	);
+
+	-- The max cones may be in the output of gfan.
+	F := fan(transpose matrix myhash#"Rays", 
+		 transpose matrix myhash#"LinealitySpace", 
+		 maximalConesFromList myhash#"Cones");
 	F
 )
 
@@ -1746,12 +1751,10 @@ convertRingToRational Ring := ZRing -> (
 -- May be a way of doing this where we cut down on the the cones we are iterating over.
 maximalConesFromList = method()
 maximalConesFromList List := cones -> (
-	<< cones;
 	maximalCones := cones;
 	for index1 from 0 to  #cones-1 do (
 		for index2 from 0 to #cones-1 do(
 			if index1 === index2 then continue;			
-			<< maximalCones;			
 			if isSubset(cones#index2, cones#index1) then (
 				maximalCones = delete(cones#index2, maximalCones);
 			)
