@@ -63,6 +63,10 @@ containsLine Fan := opts -> F -> (
 		posCone := constructConeFromRays(rays F, posRays);		
 		for negRays in coneList do (
 			negCone := constructConeFromRays(-1*(rays F), negRays);
+			<< "POS AMBDIM:" << ambDim posCone;
+			<< "POS CONES:" << posRays;
+			<< "NEG AMBDIM:" << ambDim negCone;
+			<< "NEG CONES:" << negRays;
 			if rays(intersection(posCone, negCone)) != 0 then return true;
 		);
 	);
@@ -105,7 +109,7 @@ constructVectorInCone (List, List) := (rays, cone) -> (
 constructConeFromRays = method()
 constructConeFromRays (Matrix, List) := (fanRays, cone) -> (
 	if #cone === 0 then (
-		zeroVector := apply(numgens source fanRays, i -> 0);
+		zeroVector := apply(numgens target fanRays, i -> 0);
 		return posHull(transpose matrix {zeroVector});
 	);	
 	rayList := entries transpose fanRays;	
@@ -116,9 +120,7 @@ constructConeFromRays (Matrix, List) := (fanRays, cone) -> (
 	return posHull(transpose matrix new List from points);
 )
 
--- The cones function of Polyhedra returns the list of all cones of at most that dimension
--- until no cones of this dimension exist.
--- This method finds the biggest list that exists.
+-- This method returns a list of all cones in the fan.
 -- Hopefully can be circumvented with only needing to look at maximal cones, but that is
 -- to be proven, and do determine that Polyhedra calls the correct thing max cones.
 getAllCones = method()
@@ -227,8 +229,115 @@ Node
 			containsLine F
 ///
 
---TEST ///
 
---///
+TEST ///
+	R = ZZ[x];
+	I = ideal 2*x;
+	assert(not containsOneMonomial(I));
+///
+
+
+TEST ///
+	R = ZZ[x,y,z];
+	I = ideal(x + y + z, y + z);
+	assert(containsOneMonomial(I));
+///
+
+
+TEST ///
+	R = ZZ[x,y,z];
+	I = ideal(x + y + z);
+	RAYS = transpose matrix {{-2,1,1},{1,-2,1},{1,1,-2}};
+	LIN = transpose matrix {{1,1,1}};
+	CONES = {{0},{1},{2}};
+	F = fan(RAYS, LIN, CONES);
+	assert(F == integerTropicalVariety(I));
+///
+
+
+TEST ///
+	R = ZZ[x,y,z];
+	I = ideal(x);
+	RAYS = transpose matrix {{0,0,0}};
+	LIN = transpose matrix {{1,0,0}, {0,1,0},{0,0,1}};
+	CONES = {};
+	F = fan(RAYS, LIN, CONES);
+	assert(F == integerTropicalVariety(I));
+///
+
+
+TEST ///
+	R = ZZ[x,y,z];
+	I = ideal(2*x);
+	RAYS = transpose matrix {{0,0,0}};
+	LIN = transpose matrix {{1,0,0}, {0,1,0},{0,0,1}};
+	CONES = {{}};
+	F = fan(RAYS, LIN, CONES);
+	assert(F == integerTropicalVariety(I));
+///
+
+
+TEST ///
+	R = ZZ[x,y,z];
+	RAYS = transpose matrix {{0,0,0}};
+	LIN = transpose matrix {{1,0,0}, {0,1,0},{0,0,1}};
+	CONES = {};
+	F = fan(RAYS, LIN, CONES);
+	assert(not (containsLine F));
+///
+
+
+TEST ///
+	R = ZZ[x,y,z];
+	RAYS = transpose matrix {{0,0,0}};
+	LIN = transpose matrix {{1,0,0}};
+	CONES = {{}};
+	F = fan(RAYS, LIN, CONES);
+	assert((containsLine F));
+///
+
+
+TEST ///
+	R = ZZ[x,y,z];
+	RAYS = transpose matrix {{0,0,0}};
+	LIN = transpose matrix {{1,0,0}};
+	CONES = {{}};
+	F = fan(RAYS, LIN, CONES);
+	assert(not (containsLine(F, "homogenisedIdeal"=>true)));
+///
+
+
+TEST ///
+	R = ZZ[x,y,z];
+	RAYS = transpose matrix {{0,0,0}};
+	LIN = transpose matrix {{1,0,0},{1,1,1}};
+	CONES = {{}};
+	F = fan(RAYS, LIN, CONES);
+	assert(containsLine(F, "homogenisedIdeal"=>true));
+///
+
+
+TEST ///
+	RAYS = transpose matrix {{1,0},{0,1}};
+	CONES = {{0},{1}};
+	F = fan(RAYS, CONES);
+	assert(not containsLine F);
+///
+
+
+TEST ///
+	RAYS = transpose matrix {{1,1},{-1,-1}};
+	CONES = {{0},{1}};
+	F = fan(RAYS, CONES);
+	assert(containsLine F);
+///
+
+
+TEST ///
+	RAYS = transpose matrix {{1,0},{0,1},{-1,-1}};
+	CONES = {{0,1},{2}};
+	F = fan(RAYS, CONES);
+	assert(containsLine F);
+///
 
 end
