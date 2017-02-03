@@ -58,7 +58,7 @@ containsLine Fan := opts -> F -> (
 	if opts#"homogenisedIdeal" then sufficientLineality = 2;
 	if numgens source linealitySpace F >= sufficientLineality then return true;
 	
-	coneList := getAllCones F;
+	coneList := maxCones F;
 	for posRays in coneList do (
 		posCone := constructConeFromRays(rays F, posRays);		
 		for negRays in coneList do (
