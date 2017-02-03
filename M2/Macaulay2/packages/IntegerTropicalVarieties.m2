@@ -152,9 +152,80 @@ maximalCones List := cones -> (
 )
 
 beginDocumentation()
---doc ///
+multidoc ///
+Node
+	Key
+		IntegerTropicalVarieties
+	Headline
+		Tropical Varieties of ideals over integer polynomials.
+	Description
+		Text
+			{\em IntegerTropicalVarieties} is a package that creates the tropical varieties for polynomial ideals over integers and uses this to answer questions about the group {$G_I$} as described in Section 1.6 of Introduction to Tropical Geometry, Maclagan-Sturmfels.
 
---///
+Node
+	Key
+		integerTropicalVariety
+		(integerTropicalVariety,Ideal)
+	Headline
+		 Calculates the integer tropical variety.
+	Usage
+		integerTropicalVariety I
+	Inputs
+		I:Ideal
+	Outputs
+		F:Fan
+	Description
+		Text
+			The main function. Computes the tropical variety for a homogeneous ideal of polynomials over integers as a Polyhedra Fan.
+		Example
+			R = ZZ[x,y,z]
+			I = ideal(2*x, x*y - x*z)
+			integerTropicalVariety I
+
+Node
+	Key
+		containsOneMonomial
+		(containsOneMonomial,Ideal)
+	Headline
+		Contains a monic monomial.
+	Usage
+		containsOneMonomial I
+	Inputs
+		I:Ideal
+	Outputs
+		b:Boolean
+	Description
+		Text
+			Determines whether an ideal contains an element that is a monic monomial.
+		Example
+			R = ZZ[x,y,z]
+			I = ideal(2*x, x*y - x*z)
+			J = ideal(x+y+z, y+z)
+			containsOneMonomial I -- false
+			containsOneMonomial J -- true
+
+Node
+	Key
+		containsLine
+		(containsLine,Fan)
+	Headline
+		Does the fan contain a line. 
+	Usage
+		containsLine F
+	Inputs
+		F:Fan
+	Outputs
+		b:Boolean
+	Description
+		Text
+			Determines whether a Polyhedra fan contains a line, both a ray and its negation.
+		Example
+			R = matrix {{1,0},{0,1}, {0,0}}
+			L = matrix {{1},{1},{1}}
+			C = {{0,1},{2}}
+			F = fan(R, L, C)
+			containsLine F
+///
 
 --TEST ///
 
