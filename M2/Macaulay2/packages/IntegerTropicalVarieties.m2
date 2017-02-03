@@ -336,4 +336,11 @@ TEST ///
 	assert(containsLine F);
 ///
 
+TEST ///
+	RAYS = transpose matrix {{1,0},{1,1},{-1,0}};
+	CONES = {{0,1},{2}};
+	F = fan(RAYS, CONES);
+	assert(containsLine F);
+///
+
 end
