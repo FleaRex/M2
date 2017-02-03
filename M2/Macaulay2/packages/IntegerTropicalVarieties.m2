@@ -63,10 +63,6 @@ containsLine Fan := opts -> F -> (
 		posCone := constructConeFromRays(rays F, posRays);		
 		for negRays in coneList do (
 			negCone := constructConeFromRays(-1*(rays F), negRays);
-			<< "POS AMBDIM:" << ambDim posCone;
-			<< "POS CONES:" << posRays;
-			<< "NEG AMBDIM:" << ambDim negCone;
-			<< "NEG CONES:" << negRays;
 			if rays(intersection(posCone, negCone)) != 0 then return true;
 		);
 	);
