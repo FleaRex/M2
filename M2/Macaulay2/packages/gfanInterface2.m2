@@ -1703,6 +1703,12 @@ gfanOverIntegers Ideal := opts -> (I) -> (
 	rawBlocks := new MutableHashTable from apply(blocks, P -> first P => P#1);
 	parsedBlocks := apply(select(blocks, Q -> last Q =!= null), P -> GfanNameToPolyhedralName#(first P) => last P);
 	myhash := new MutableHashTable from parsedBlocks;
+
+	if #(myhash#"LinealitySpace") === 0 then(
+		return fan(transpose matrix myhash#"Rays", 
+			   maximalConesFromList myhash#"Cones");
+	);
+
 	if myhash#?"Rays" and #myhash#"Rays" === 0 then(
 		dim := numgens target matrix transpose myhash#"LinealitySpace";
 		zeros := apply(dim, i->0);
