@@ -15,7 +15,7 @@ newPackage("IntegerTropicalVarieties",
 
 export{
 	"integerTropicalVariety",
-	"containsOneMonomial",
+	"containsMonicMonomial",
 	"containsLine"
 }
 
@@ -28,7 +28,7 @@ integerTropicalVariety Ideal := I -> (
 	-- Saturating I as we want to work in the Laurent ring.
 	for var in gens ring I do (
 		I = saturate(I, var);
-	);	
+	);
 	F := gfanOverIntegers(I, "groebnerFan"=>true);
 	rayList := entries transpose rays F;
 	totalCones := getAllCones F;
@@ -36,7 +36,7 @@ integerTropicalVariety Ideal := I -> (
 	-- TODO change this to in list version
 	for coneIndex from 0 to length totalCones - 1 do (		
 		w := constructVectorInCone(rayList, totalCones#coneIndex);
-		if not containsOneMonomial(
+		if not containsMonicMonomial(
 			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
 		) then (
 			includedCones = includedCones | {totalCones#coneIndex};
@@ -78,8 +78,8 @@ containsLine Fan := opts -> F -> (
 --------------------------------------------------------
 
 -- Takes any ideal and determines if it contains one.
-containsOneMonomial = method()
-containsOneMonomial Ideal := I -> (
+containsMonicMonomial = method()
+containsMonicMonomial Ideal := I -> (
 	variables  :=  gens ring I;
 	J := I;
 	for var in variables do (
@@ -186,12 +186,12 @@ Node
 
 Node
 	Key
-		containsOneMonomial
-		(containsOneMonomial,Ideal)
+		containsMonicMonomial
+		(containsMonicMonomial,Ideal)
 	Headline
 		Contains a monic monomial.
 	Usage
-		containsOneMonomial I
+		containsMonicMonomial I
 	Inputs
 		I:Ideal
 	Outputs
@@ -203,8 +203,8 @@ Node
 			R = ZZ[x,y,z]
 			I = ideal(2*x, x*y - x*z)
 			J = ideal(x+y+z, y+z)
-			containsOneMonomial I -- false
-			containsOneMonomial J -- true
+			containsMonicMonomial I -- false
+			containsMonicMonomial J -- true
 
 Node
 	Key
@@ -233,14 +233,14 @@ Node
 TEST ///
 	R = ZZ[x];
 	I = ideal 2*x;
-	assert(not containsOneMonomial(I));
+	assert(not containsMonicMonomial(I));
 ///
 
 
 TEST ///
 	R = ZZ[x,y,z];
 	I = ideal(x + y + z, y + z);
-	assert(containsOneMonomial(I));
+	assert(containsMonicMonomial(I));
 ///
 
 
