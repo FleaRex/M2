@@ -25,6 +25,10 @@ export{
 
 integerTropicalVariety = method()
 integerTropicalVariety Ideal := I -> (
+	-- Saturating I as we want to work in the Laurent ring.
+	for var in gens ring I do (
+		I = saturate(I, var);
+	);	
 	F := gfanOverIntegers(I, "groebnerFan"=>true);
 	rayList := entries transpose rays F;
 	totalCones := getAllCones F;
