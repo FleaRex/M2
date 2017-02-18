@@ -10,6 +10,9 @@ newPackage("IntegerTropicalVarieties",
 		"gfanInterface2",
 		"Polyhedra"
 	},
+	PackageImports => {
+		"EliminationMatrices"
+	},
 	Configuration => {}
 )
 
@@ -29,7 +32,32 @@ integerTropicalVariety Ideal := I -> (
 	for var in gens ring I do (
 		I = saturate(I, var);
 	);
-	F := gfanOverIntegers(I, "groebnerFan"=>true);
+	homogenisingVariable := local homogenisingVariable;
+	J := sub(I, ZZ[{homogenisingVariable} | gens ring I]);
+	homogFan := gfanOverIntegers(J, "groebnerFan"=>true);
+	
+	-- Now we are looking to intersect with the plane corresponding to homogenisingVariable=1
+	-- We quotient (1,1,...,1)
+	oneVector := apply(numgens target rays homogFan, i -> 1);
+	homogRays := new MutableList from entries transpose rays homogFan;
+	dehomogRays := new MutableList;
+	for ray in homogRays do (
+		ray = ray - (ray#0)*oneVector;
+		ray = drop(ray, 1);
+		dehomogRays##dehomogRays = ray;
+	);
+	homogLin := new MutableList from entries transpose linealitySpace homogFan;
+	dehomogLin := new MutableList;	
+	for line in homogLin do (
+		line = line - (line#0)*oneVector;
+		line = drop(line, 1);
+		dehomogLin##dehomogLin = line;
+	);
+	
+	F := fan(transpose matrix (new List from dehomogRays), 
+		 first maxCol transpose matrix (new List from dehomogLin),
+		 maxCones(homogFan));
+	
 	rayList := entries transpose rays F;
 	totalCones := getAllCones F;
 	includedCones := {};
@@ -37,11 +65,12 @@ integerTropicalVariety Ideal := I -> (
 	for coneIndex from 0 to length totalCones - 1 do (		
 		w := constructVectorInCone(rayList, totalCones#coneIndex);
 		if not containsMonicMonomial(
-			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
+			ideal(gfanOverIntegers(J, w, "initialIdeal"=>true))
 		) then (
 			includedCones = includedCones | {totalCones#coneIndex};
 		)
 	);
+	
 	return fan(rays F, linealitySpace F, maximalCones(includedCones));
 )
 
