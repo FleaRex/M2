@@ -33,7 +33,7 @@ integerTropicalVariety Ideal := I -> (
 		I = saturate(I, var);
 	);
 	homogenisingVariable := local homogenisingVariable;
-	J := sub(I, ZZ[{homogenisingVariable} | gens ring I]);
+	J := sub(I, ZZ(monoid[{homogenisingVariable} | gens ring I]));
 	homogFan := gfanOverIntegers(J, "groebnerFan"=>true);
 	
 	-- Now we are looking to intersect with the plane corresponding to homogenisingVariable=1

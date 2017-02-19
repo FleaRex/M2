@@ -1749,7 +1749,7 @@ gfanOverIntegers (Ideal, List) := opts -> (I, w) -> (
 convertRingToRational = method()
 convertRingToRational Ring := ZRing -> (
 	if coefficientRing(ZRing) =!= ZZ then error "Must be a polynomial ring over integers";
-	return QQ[gens ZRing];
+	return QQ(monoid[gens ZRing]);
 )
 
 -- Polyhedra wants fans to be constructed from the maximal cones.
