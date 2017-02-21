@@ -65,7 +65,7 @@ integerTropicalVariety Ideal := I -> (
 	for coneIndex from 0 to length totalCones - 1 do (		
 		w := constructVectorInCone(rayList, totalCones#coneIndex);
 		if not containsMonicMonomial(
-			ideal(gfanOverIntegers(J, w, "initialIdeal"=>true))
+			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
 		) then (
 			includedCones = includedCones | {totalCones#coneIndex};
 		)
@@ -109,6 +109,7 @@ containsLine Fan := opts -> F -> (
 -- Takes any ideal and determines if it contains one.
 containsMonicMonomial = method()
 containsMonicMonomial Ideal := I -> (
+	if I == 1 then return true;
 	variables  :=  gens ring I;
 	J := I;
 	for var in variables do (
@@ -261,6 +262,12 @@ Node
 
 TEST ///
 	R = ZZ[x];
+	I = ideal 1;
+	assert(containsMonicMonomial(I));
+///
+
+TEST ///
+	R = ZZ[x];
 	I = ideal 2*x;
 	assert(not containsMonicMonomial(I));
 ///
@@ -368,6 +375,7 @@ TEST ///
 	F = fan(RAYS, CONES);
 	assert(containsLine F);
 ///
+
 
 TEST ///
 	RAYS = transpose matrix {{1,0},{1,1},{-1,0}};
