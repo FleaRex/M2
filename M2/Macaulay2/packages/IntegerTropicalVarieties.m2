@@ -26,14 +26,25 @@ export{
 -- integerTropicalVariety
 --------------------------------------------------------
 
-integerTropicalVariety = method()
-integerTropicalVariety Ideal := I -> (
+integerTropicalVariety = method(
+	Options => {
+		"calculateTropicalBasis" => false	
+	}
+)
+integerTropicalVariety Ideal := opts -> I -> (
+	
+	tropicalBasis := new MutableList;
+	correspondingVectors := new MutableList;
+
 	-- Saturating I as we want to work in the Laurent ring.
 	for var in gens ring I do (
 		I = saturate(I, var);
 	);
 	homogenisingVariable := local homogenisingVariable;
-	J := sub(I, ZZ(monoid[{homogenisingVariable} | gens ring I]));
+	I2 := sub(I, ZZ(monoid[{homogenisingVariable} | gens ring I]));
+	--generators := first entries gens gb I2;
+	--J := ideal(apply(generators, p -> homogenize(p, homogenisingVariable)));
+	J := homogenize(I2, first (gens ring I2));	
 	homogFan := gfanOverIntegers(J, "groebnerFan"=>true);
 	
 	-- Now we are looking to intersect with the plane corresponding to homogenisingVariable=1
@@ -68,9 +79,18 @@ integerTropicalVariety Ideal := I -> (
 			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
 		) then (
 			includedCones = includedCones | {totalCones#coneIndex};
-		)
+		)-- else if opts#"calculateTropicalBasis" then (
+		--	tropicalBasis##findBasisPolynomial(I, w);
+		--	correspondingVectors##w;
+		--)
 	);
 	
+	--if opts#"calculateTropicalBasis" then (
+	--	return {
+	--		fan(rays F, linealitySpace F, maximalCones(includedCones)), 
+	--		{toList tropicalBasis, toList correspondingVectors}
+	--	};
+	--) else 
 	return fan(rays F, linealitySpace F, maximalCones(includedCones));
 )
 
@@ -101,6 +121,18 @@ containsLine Fan := opts -> F -> (
 	);
 	return false;
 )
+
+--------------------------------------------------------
+-- findBasisPolynomial
+--------------------------------------------------------
+
+--findBasisPolynomial = method()
+--findBasisPolynomial (Ideal, list) := (I, w) -> (	
+--	homogenisingVariable := local homogenisingVariable;
+--	R = ZZ(monoid{{homogenisingVariable} | gens ring I, 
+--	       MonomialOrder=>{Weights=>{0} | w}});
+--	
+--)
 
 --------------------------------------------------------
 -- Helper Functions
@@ -182,6 +214,46 @@ maximalCones List := cones -> (
 	);
 	return maximalCones;
 )
+
+-- Taken from http://www.math.cornell.edu/~web4370/division-algorithm.m2
+-- Math 4370, Spring 2015
+-- Mike Stillman
+
+-- The following is Macaulay2 code for
+-- computing a Groebner basis (GB)
+-- and the division algorithm.
+
+LM = (f) -> leadMonomial f
+LC = (f) -> leadCoefficient f
+LT = (f) -> leadTerm f
+
+-- The monomial order is in the "Ring"
+divisionAlgorithm = (f, G) -> (
+    -- f is a polynomial
+    -- G is a list of polynomials
+    -- result:
+    -- (remainder r, Q), Q is a list of quotients
+    --   f = Q.G + r
+    R := ring f;
+    p := f;
+    r := 0_R;
+    Q := new MutableList from toList(#G : 0_R);
+    while p != 0 do (
+        --<< "p = " << p <<  " and Q = " << toList Q << endl;
+        i := position(G, g -> (LM p) // (LM g) != 0);
+        if i === null then (
+            -- there were no elements that divide this term
+            r = r + LT p;
+            p = p - LT p;
+            )
+        else (
+            --<< "  dividing by poly " << i << endl;
+            m := (LT p)//(LT G#i);
+            Q#i = Q#i + m;
+            p = p - m * G#i;
+        ));
+    (r, toList Q)
+    )
 
 beginDocumentation()
 multidoc ///
@@ -309,6 +381,16 @@ TEST ///
 	LIN = transpose matrix {{1,0,0}, {0,1,0},{0,0,1}};
 	CONES = {{}};
 	F = fan(RAYS, LIN, CONES);
+	assert(F == integerTropicalVariety(I));
+///
+
+TEST ///
+	R = ZZ[x,y]
+	I = ideal(x+y+1);
+	RAYS = transpose matrix {{1,1},{-1,0},{0,-1}};
+	CONES = {{0},{1},{2}};
+	F = fan(RAYS, CONES);
+	peek (integerTropicalVariety(I))#cache;
 	assert(F == integerTropicalVariety(I));
 ///
 
