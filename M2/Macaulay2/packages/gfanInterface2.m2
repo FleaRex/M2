@@ -1742,7 +1742,6 @@ gfanOverIntegers (Ideal, List) := opts -> (I, w) -> (
 	else (
 		return gfanParseMPL resultString;
 	)
-	<<"CHO3";
 )
 
 -- This function is used as gfan_overintegers requires the polynomial ring to be over
