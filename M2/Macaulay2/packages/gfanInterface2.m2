@@ -1734,6 +1734,7 @@ gfanOverIntegers (Ideal, List) := opts -> (I, w) -> (
 	input := gfanRingToString(convertRingToRational(ring I))
 		| gfanIdealToString(I)
 		| gfanIntegerListToString(w);
+	use ring I;
 	resultString := first runGfanCommand("gfan _overintegers", opts, input);
 	if opts#"initialIdeal" then(
 		return gfanParseIdeal resultString;
@@ -1741,7 +1742,7 @@ gfanOverIntegers (Ideal, List) := opts -> (I, w) -> (
 	else (
 		return gfanParseMPL resultString;
 	)
-
+	<<"CHO3";
 )
 
 -- This function is used as gfan_overintegers requires the polynomial ring to be over
