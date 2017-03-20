@@ -19,8 +19,11 @@ newPackage("IntegerTropicalVarieties",
 export{
 	"integerTropicalVariety",
 	"containsMonicMonomial",
-	"containsLine"
+	"containsLine",
+	"findBasisPolynomial"
 }
+
+--protect homogenisingVariable
 
 --------------------------------------------------------
 -- integerTropicalVariety
@@ -42,8 +45,6 @@ integerTropicalVariety Ideal := opts -> I -> (
 	);
 	homogenisingVariable := local homogenisingVariable;
 	I2 := sub(I, ZZ(monoid[{homogenisingVariable} | gens ring I]));
-	--generators := first entries gens gb I2;
-	--J := ideal(apply(generators, p -> homogenize(p, homogenisingVariable)));
 	J := homogenize(I2, first (gens ring I2));	
 	homogFan := gfanOverIntegers(J, "groebnerFan"=>true);
 	
@@ -79,19 +80,20 @@ integerTropicalVariety Ideal := opts -> I -> (
 			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
 		) then (
 			includedCones = includedCones | {totalCones#coneIndex};
-		)-- else if opts#"calculateTropicalBasis" then (
-		--	tropicalBasis##findBasisPolynomial(I, w);
-		--	correspondingVectors##w;
-		--)
+		) else if opts#"calculateTropicalBasis" then ( -- Need some max cone check too
+			tropicalBasis##findBasisPolynomial(I, w);
+			correspondingVectors##w;
+		)
 	);
 	
-	--if opts#"calculateTropicalBasis" then (
-	--	return {
-	--		fan(rays F, linealitySpace F, maximalCones(includedCones)), 
-	--		{toList tropicalBasis, toList correspondingVectors}
-	--	};
-	--) else 
-	return fan(rays F, linealitySpace F, maximalCones(includedCones));
+	if opts#"calculateTropicalBasis" then (
+		return {
+			fan(rays F, linealitySpace F, maximalCones(includedCones)), 
+			{(toList tropicalBasis) | (gens gb I), toList correspondingVectors}
+		};
+	) else (
+		return fan(rays F, linealitySpace F, maximalCones(includedCones));
+	)
 )
 
 
@@ -126,17 +128,47 @@ containsLine Fan := opts -> F -> (
 -- findBasisPolynomial
 --------------------------------------------------------
 
---findBasisPolynomial = method()
---findBasisPolynomial (Ideal, list) := (I, w) -> (	
---	homogenisingVariable := local homogenisingVariable;
---	R = ZZ(monoid{{homogenisingVariable} | gens ring I, 
---	       MonomialOrder=>{Weights=>{0} | w}});
---	
---)
+findBasisPolynomial = method()
+findBasisPolynomial (Ideal, List) := (I, w) -> (	
+	if not containsMonicMonomial(
+			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
+		) then error "Initial ideal contains monic monomial.";
+	--homogenisingVariable := local homogenisingVariable;
+	R := ZZ(monoid{{getSymbol "homogenisingVariable"} | gens ring I, 
+	       MonomialOrder=>{Weights=>{0} | w}});
+	I2 := sub(I, R);
+	J := homogenize(I2, first (gens R));
+	grobBasis := gfanOverIntegers(J, {0} | w, "groebnerBasis"=>true);
+	initialJ := ideal(grobBasis#0);
+	prod := 1_(R);
+	for variable in gens R do (
+		prod = prod * variable;
+	);
+	n := findMonomialPowerInIdeal(initialJ, prod);
+	divisionResult := divisionAlgorithm(prod^n, grobBasis#0);
+	scalarProduct := entries((matrix {divisionResult#1})*(transpose matrix {grobBasis#1}));
+	basisElement := (scalarProduct#0)#0;
+	return sub(basisElement, matrix {{1} | gens ring I});
+)
+
 
 --------------------------------------------------------
 -- Helper Functions
 --------------------------------------------------------
+
+-- Finds an n for which the product of all variables is in the ideal.
+findMonomialPowerInIdeal = method()
+findMonomialPowerInIdeal (Ideal, RingElement) := (I, r) -> (
+	<< r;	
+	power := 1;
+	while not (saturate(I, r^power) == 1) do (
+		<< power;		
+		<< saturate(I, r^power) == 1;		
+		power = power + 1;
+	);
+	return power;
+)
+
 
 -- Takes any ideal and determines if it contains one.
 containsMonicMonomial = method()
