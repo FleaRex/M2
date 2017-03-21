@@ -133,7 +133,7 @@ findBasisPolynomial = method()
 findBasisPolynomial (Ideal, List) := (I, w) -> (	
 	if not containsMonicMonomial(
 			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
-		) then error "Initial ideal contains monic monomial.";
+		) then error "Initial ideal must contain monic monomial.";
 	--homogenisingVariable := local homogenisingVariable;
 	R := ZZ(monoid{{getSymbol "homogenisingVariable"} | gens ring I, 
 	       MonomialOrder=>{Weights=>{0} | w}});
