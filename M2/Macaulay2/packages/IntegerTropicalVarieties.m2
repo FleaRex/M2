@@ -80,16 +80,17 @@ integerTropicalVariety Ideal := opts -> I -> (
 			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
 		) then (
 			includedCones = includedCones | {totalCones#coneIndex};
-		) else if opts#"calculateTropicalBasis" then ( -- Need some max cone check too
-			tropicalBasis##findBasisPolynomial(I, w);
-			correspondingVectors##w;
+		) else if (opts#"calculateTropicalBasis" and 
+			   member(totalCones#coneIndex, maxCones(F))) then (
+			tropicalBasis##tropicalBasis = findBasisPolynomial(I, w);
+			correspondingVectors##correspondingVectors = w;
 		)
 	);
 	
 	if opts#"calculateTropicalBasis" then (
 		return {
 			fan(rays F, linealitySpace F, maximalCones(includedCones)), 
-			{(toList tropicalBasis) | (gens gb I), toList correspondingVectors}
+			{(toList tropicalBasis) | (first entries gens gb I), toList correspondingVectors}
 		};
 	) else (
 		return fan(rays F, linealitySpace F, maximalCones(includedCones));
@@ -361,6 +362,29 @@ Node
 			C = {{0,1},{2}}
 			F = fan(R, L, C)
 			containsLine F
+
+Node
+	Key
+		findBasisPolynomial
+		(findBasisPolynomial, Ideal, List)
+	Headline
+		Finds a tropical basis element with respect to a vector. 
+	Usage
+		findBasisPolynomial(I, w)
+	Inputs
+		I:Ideal
+		w:List
+			Weight vector for taking the initial ideal.
+	Outputs
+		f:RingElement
+	Description
+		Text
+			If the initial ideal of {\tt I} contains a monic monomial, then
+			finds a polynomial with a monic monomial as an initial term.
+		Example
+			R = ZZ[x, y]
+			I = ideal(x+y+1)
+			findBasisPolynomial(I, {1,0})
 ///
 
 
@@ -496,6 +520,14 @@ TEST ///
 	CONES = {{0,1},{2}};
 	F = fan(RAYS, CONES);
 	assert(containsLine F);
+///
+
+
+TEST ///
+	R = ZZ[x,y, MonomialOrder=>{1,0}];
+	I = ideal(x + y + 1);
+	f = findBasisPolynomial(I, {1,0});
+	assert(leadCoefficient(f) === 1);
 ///
 
 end
