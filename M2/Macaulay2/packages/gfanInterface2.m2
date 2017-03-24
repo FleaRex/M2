@@ -1734,7 +1734,7 @@ gfanOverIntegers (Ideal, List) := opts -> (I, w) -> (
 	input := gfanRingToString(convertRingToRational(ring I))
 		| gfanIdealToString(I)
 		| gfanIntegerListToString(w);
-	use ring I;
+	use ring I; -- THIS IS BAD AND NEEDS TO BE TREADTED WITH CAUTION
 	resultString := first runGfanCommand("gfan _overintegers", opts, input);
 	if opts#"initialIdeal" then(
 		return gfanParseIdeal resultString;
