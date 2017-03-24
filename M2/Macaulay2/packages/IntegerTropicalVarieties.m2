@@ -43,6 +43,7 @@ integerTropicalVariety Ideal := opts -> I -> (
 	for var in gens ring I do (
 		I = saturate(I, var);
 	);
+	if I == 1 then error "Ideal cannot be unit ideal of Laurent ring.";
 	homogenisingVariable := local homogenisingVariable;
 	I2 := sub(I, ZZ(monoid[{homogenisingVariable} | gens ring I]));
 	J := homogenize(I2, first (gens ring I2));	
@@ -76,13 +77,15 @@ integerTropicalVariety Ideal := opts -> I -> (
 	-- TODO change this to in list version
 	for coneIndex from 0 to length totalCones - 1 do (		
 		w := constructVectorInCone(rayList, totalCones#coneIndex);
+		<< w << endl;		
 		if not containsMonicMonomial(
 			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
 		) then (
 			includedCones = includedCones | {totalCones#coneIndex};
 		) else if (opts#"calculateTropicalBasis" and 
 			   member(totalCones#coneIndex, maxCones(F))) then (
-			tropicalBasis##tropicalBasis = findBasisPolynomial(I, w);
+			f := findBasisPolynomial(I, w);
+			tropicalBasis##tropicalBasis = f;
 			correspondingVectors##correspondingVectors = w;
 		)
 	);
@@ -160,11 +163,10 @@ findBasisPolynomial (Ideal, List) := (I, w) -> (
 -- Finds an n for which the product of all variables is in the ideal.
 findMonomialPowerInIdeal = method()
 findMonomialPowerInIdeal (Ideal, RingElement) := (I, r) -> (
-	--<< r;	
-	--power := 1;
+	power := 1;
 	while not (saturate(I, r^power) == 1) do (
-		--<< power;		
-		--<< saturate(I, r^power) == 1;		
+		<< power << endl;		
+		<< saturate(I, r^power) == 1 << endl;		
 		power = power + 1;
 	);
 	return power;
