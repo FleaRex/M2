@@ -313,12 +313,16 @@ Node
 		F:Fan
 	Description
 		Text
-			The main function. Computes the tropical variety for a homogeneous ideal of polynomials over integers as a Polyhedra Fan.
+			The main function. Computes the tropical variety for an ideal of polynomials over integers as a Polyhedra Fan. This is interpreted as an ideal of the Laurent polynomial ring, so we saturate the input ideal with respect to all variables. By using the the optional argument "calculateTropicalBasis", the function will produce a list containing the Fan and another two lists. The first is a tropical basis and the second is a set of vectors such that the initial term of the corresponding basis polynomial is a monomial. 
 		Example
 			R = ZZ[x,y,z]
 			I = ideal(2*x, x*y - x*z)
 			integerTropicalVariety I
 
+		Example
+			R = ZZ[a,b,c,d]
+			I = ideal(a*c*d + a^2*c-ab, a*d^2-c,a*d^4+a*c)
+			integerTropicalVariety(I, "calculateTropicalBasis"=>true)
 Node
 	Key
 		containsMonicMonomial
