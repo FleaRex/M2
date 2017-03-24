@@ -319,7 +319,7 @@ Node
 
 		Example
 			R = ZZ[a,b,c,d]
-			I = ideal(a*c*d + a^2*c-a*b, a*d^2-c,a*d^4+a*c)
+			I = ideal(a*c*d + a^2*c-a*b)
 			integerTropicalVariety(I, "calculateTropicalBasis"=>true)
 Node
 	Key
