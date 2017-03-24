@@ -160,11 +160,11 @@ findBasisPolynomial (Ideal, List) := (I, w) -> (
 -- Finds an n for which the product of all variables is in the ideal.
 findMonomialPowerInIdeal = method()
 findMonomialPowerInIdeal (Ideal, RingElement) := (I, r) -> (
-	<< r;	
-	power := 1;
+	--<< r;	
+	--power := 1;
 	while not (saturate(I, r^power) == 1) do (
-		<< power;		
-		<< saturate(I, r^power) == 1;		
+		--<< power;		
+		--<< saturate(I, r^power) == 1;		
 		power = power + 1;
 	);
 	return power;
@@ -175,7 +175,7 @@ findMonomialPowerInIdeal (Ideal, RingElement) := (I, r) -> (
 containsMonicMonomial = method()
 containsMonicMonomial Ideal := I -> (
 	if I == 1 then return true;
-	variables  :=  gens ring I;
+	variables := gens ring I;
 	J := I;
 	for var in variables do (
 		J = saturate(J, var);
@@ -189,12 +189,10 @@ containsMonicMonomial Ideal := I -> (
 constructVectorInCone = method()
 constructVectorInCone (List, List) := (rays, cone) -> (
 	vectorLength := length first rays;
-	--v := apply(vectorLength, i -> 0);
 	v := {};
 	for dimension from 1 to vectorLength do (
 		v = v | {0};
 	);
-	-- TODO Change this to the in list version
 	for rayIndex from 0 to length cone - 1 do (
 		v = v + rays#(cone#rayIndex);	
 	);
