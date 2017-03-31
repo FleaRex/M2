@@ -273,7 +273,7 @@ divisionAlgorithm = (f, G) -> (
     Q := new MutableList from toList(#G : 0_R);
     while p != 0 do (
         --<< "p = " << p <<  " and Q = " << toList Q << endl;
-        i := position(G, g -> (LM p) // (LM g) != 0);
+        i := position(G, g -> (LT p) // (LT g) != 0);
         if i === null then (
             -- there were no elements that divide this term
             r = r + LT p;
@@ -421,18 +421,6 @@ TEST ///
 	F = fan(RAYS, LIN, CONES);
 	assert(F == integerTropicalVariety(I));
 ///
-
-
-TEST ///
-	R = ZZ[x,y,z];
-	I = ideal(x);
-	RAYS = transpose matrix {{0,0,0}};
-	LIN = transpose matrix {{1,0,0}, {0,1,0},{0,0,1}};
-	CONES = {};
-	F = fan(RAYS, LIN, CONES);
-	assert(F == integerTropicalVariety(I));
-///
-
 
 TEST ///
 	R = ZZ[x,y,z];
