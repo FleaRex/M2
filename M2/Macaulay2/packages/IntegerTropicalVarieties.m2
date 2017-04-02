@@ -1,6 +1,6 @@
 newPackage("IntegerTropicalVarieties",
-	Version => "0.1",
-	Date => "month 01, 2017",
+	Version => "1.0",
+	Date => "month 04, 2017",
 	Headline => "Tropical Varieties of ideals over integer polynomials.",
 	Authors => {
 		{Name => "Ben Madley", Email => "b.madley@warwick.ac.uk", HomePage => ""}
