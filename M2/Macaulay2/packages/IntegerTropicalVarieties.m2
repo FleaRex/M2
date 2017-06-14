@@ -45,7 +45,7 @@ integerTropicalVariety Ideal := opts -> I -> (
 	);
 	if I == 1 then error "Ideal cannot be unit ideal of Laurent ring.";
 	homogenisingVariable := local homogenisingVariable;
-	I2 := sub(I, ZZ(monoid[{homogenisingVariable} | gens ring I]));
+	I2 := sub(I, ZZ[{getSymbol("homogenisingVariable")} | gens ring I]);
 	J := homogenize(I2, first (gens ring I2));	
 	homogFan := gfanOverIntegers(J, "groebnerFan"=>true);
 	
@@ -79,7 +79,7 @@ integerTropicalVariety Ideal := opts -> I -> (
 		w := constructVectorInCone(rayList, totalCones#coneIndex);
 		<< w << endl;		
 		if not containsMonicMonomial(
-			ideal(gfanOverIntegers(I, w, "initialIdeal"=>true))
+			ideal(gfanOverIntegers(J, {0} | w, "initialIdeal"=>true))
 		) then (
 			includedCones = includedCones | {totalCones#coneIndex};
 		) else if (opts#"calculateTropicalBasis" and 

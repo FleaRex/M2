@@ -10,7 +10,7 @@ newPackage(
 		},
 	Headline => "Interface to Anders Jensen's Gfan software",
 	Configuration => {
-		"path" => "/Users/maclagan/Programs/gfan",
+		"path" => "",
 		"fig2devpath" => "",
 		"keepfiles" => false,
 		"verbose" => false,
@@ -1691,7 +1691,7 @@ gfanOverIntegers = method( Options => {
 
 gfanOverIntegers Ideal := opts -> (I) -> (
 	if not opts#"groebnerFan" then error "Must specify groebnerFan or give weight vector.";
-	input := gfanRingToString(convertRingToRational(ring I))
+	input := gfanRingToRationalString(ring I)
 		| gfanIdealToString(I);
 	resultString := first runGfanCommand("gfan _overintegers", opts, input);
 
@@ -1731,10 +1731,9 @@ gfanOverIntegers (Ideal, List) := opts -> (I, w) -> (
 	);
 	if opts#"initialIdeal" and opts#"groebnerBasis" then error "Two procedures specified";
 	if not opts#"initialIdeal" and not opts#"groebnerBasis" then error "Must specify a procedure.";
-	input := gfanRingToString(convertRingToRational(ring I))
+	input := gfanRingToRationalString(ring I)
 		| gfanIdealToString(I)
 		| gfanIntegerListToString(w);
-	use ring I; -- THIS IS BAD AND NEEDS TO BE TREADTED WITH CAUTION
 	resultString := first runGfanCommand("gfan _overintegers", opts, input);
 	if opts#"initialIdeal" then(
 		return gfanParseIdeal resultString;
@@ -1750,6 +1749,13 @@ convertRingToRational = method()
 convertRingToRational Ring := ZRing -> (
 	if coefficientRing(ZRing) =!= ZZ then error "Must be a polynomial ring over integers";
 	return QQ(monoid[gens ZRing]);
+)
+
+-- Takes a ring and and returns a gfan string with rational coefficients.
+gfanRingToRationalString = method()
+gfanRingToRationalString Ring := ZRing -> (
+	out := "Q" | gfanToExternalString(new Array from gens ZRing) | newline;
+	return out;
 )
 
 -- Polyhedra wants fans to be constructed from the maximal cones.
